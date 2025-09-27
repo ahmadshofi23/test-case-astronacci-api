@@ -7,6 +7,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -44,8 +45,15 @@ class UserController extends Controller
     public function update(UpdateProfileRequest $request)
     {
         $user = $request->user();
+        
+        $data = $request->validated();
 
-        $user->update($request->validated());
+        // Jika ada password, hash dulu
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
+        $user->update($data);
 
         return new UserResource($user);
     }
